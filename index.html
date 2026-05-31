@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>urbanapp</title>
+<meta name="description" content="urbanapp — egyedi megoldások városi kihívásokra.">
+<meta name="theme-color" content="#02100e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2302100e'/%3E%3Ctext x='8' y='12' font-family='monospace' font-size='12' fill='%232ff0d6' text-anchor='middle'%3E%26gt;_%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#02100e;
+    --green:#2ff0d6;
+    --green-dim:#1aae9c;
+    --green-faint:#0c4e47;
+    --glow:47,240,214;
+    --mono:'SFMono-Regular',ui-monospace,'JetBrains Mono','Cascadia Code',Menlo,Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--green);
+    font-family:var(--mono);
+    font-size:16px;
+    line-height:1.6;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-shadow:0 0 4px rgba(var(--glow),.55), 0 0 12px rgba(var(--glow),.25);
+  }
+  ::selection{background:var(--green);color:var(--bg);text-shadow:none}
+  a{color:inherit;text-decoration:none}
+
+  /* ---- CRT screen ---- */
+  .screen{
+    width:min(680px,92vw);
+    padding:34px clamp(20px,4vw,48px);
+    position:relative;
+    z-index:1;
+  }
+  /* scanlines */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:2;pointer-events:none;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 0px,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,.22) 3px,
+      rgba(0,0,0,.22) 4px);
+    mix-blend-mode:multiply;
+  }
+  /* vignette + flicker */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:3;pointer-events:none;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
+    animation:flicker 4.5s infinite steps(60);
+  }
+  @keyframes flicker{
+    0%,100%{opacity:1}
+    47%{opacity:.97}
+    48%{opacity:.88}
+    49%{opacity:.99}
+    77%{opacity:.94}
+  }
+
+  .line{white-space:pre-wrap}
+  .dim{color:var(--green-dim);text-shadow:0 0 3px rgba(var(--glow),.4)}
+  .faint{color:var(--green-faint);text-shadow:none}
+
+  /* header */
+  .brand{font-size:clamp(28px,7vw,46px);font-weight:700;letter-spacing:2px;line-height:1.1}
+  .head{margin-top:14px;color:var(--green-dim)}
+  .rule{margin:22px 0;color:var(--green-faint);letter-spacing:2px;overflow:hidden;white-space:nowrap}
+
+  /* projects */
+  .label{color:var(--green-dim);margin-bottom:10px}
+  ul{list-style:none}
+  .proj{
+    display:flex;gap:12px;align-items:baseline;
+    padding:5px 10px;margin:0 -10px;border-radius:2px;cursor:pointer;
+  }
+  .proj .arrow{width:1ch;opacity:0;transition:none}
+  .proj .name{min-width:13ch;font-weight:700}
+  .proj .desc{color:var(--green-dim)}
+  .proj.sel{background:var(--green);color:var(--bg);text-shadow:none}
+  .proj.sel .desc{color:var(--bg)}
+  .proj.sel .arrow{opacity:1}
+  .proj.sel .arrow::after{content:"\25B6"} /* ▶ */
+
+  .prompt{margin-top:22px;color:var(--green-dim)}
+
+  /* services — horizontal */
+  .services{display:flex;flex-wrap:wrap;gap:6px 0;color:var(--green-dim);font-size:14px;margin-top:18px;margin-bottom:4px}
+  .services span:not(:last-child)::after{content:"\00a0\00b7\00a0";color:var(--green-faint)} /* · */
+
+  /* blinking cursor */
+  .cur{display:inline-block;width:.62ch;height:1.05em;background:var(--green);
+    transform:translateY(.18em);animation:blink 1.05s steps(1) infinite;
+    box-shadow:0 0 8px rgba(var(--glow),.8)}
+  @keyframes blink{50%{opacity:0}}
+
+  @media (max-width:520px){
+    body{font-size:14px}
+    .proj .desc{display:none}
+    .proj .name{min-width:auto}
+  }
+</style>
+</head>
+<body>
+  <main class="screen">
+    <div class="brand">urbanapp</div>
+    <div class="head line">&gt; egyedi megoldások városi kihívásokra</div>
+
+    <div class="services">
+      <span>webfejlesztés</span>
+      <span>térképes megoldások</span>
+      <span>településfejlesztés</span>
+    </div>
+
+    <div class="rule">────────────────────────────────────────────</div>
+
+    <div class="label">PROJEKTEK/</div>
+    <ul id="list">
+      <li class="proj" data-url="https://www.allasterkep.hu">
+        <span class="arrow"></span>
+        <span class="name">állástérkép</span>
+      </li>
+      <!-- később ide kerülnek az új projektek -->
+    </ul>
+
+    <div class="prompt">&gt;&nbsp;<span class="cur"></span></div>
+  </main>
+
+<script>
+  const items = Array.from(document.querySelectorAll('.proj'));
+  let i = -1; // alapból nincs kiválasztva
+
+  function render(){
+    items.forEach((el, n) => el.classList.toggle('sel', n === i));
+  }
+  function move(d){
+    if (i === -1){ i = d > 0 ? 0 : items.length - 1; }
+    else { i = (i + d + items.length) % items.length; }
+    render();
+  }
+  function open(){
+    if (i < 0) return;
+    const url = items[i].dataset.url;
+    if (url) window.open(url, '_blank', 'noopener');
+  }
+
+  render();
+
+  document.addEventListener('keydown', e => {
+    switch (e.key){
+      case 'ArrowDown': case 'ArrowRight': case 'j': e.preventDefault(); move(1); break;
+      case 'ArrowUp':   case 'ArrowLeft':  case 'k': e.preventDefault(); move(-1); break;
+      case 'Enter': case ' ': e.preventDefault(); open(); break;
+    }
+  });
+
+  items.forEach((el, n) => {
+    el.addEventListener('mouseenter', () => { i = n; render(); });
+    el.addEventListener('click', open);
+  });
+</script>
+</body>
+</html>
