@@ -5,7 +5,9 @@ no build step, no dependencies. Content mirrors [urbanapp.hu](https://www.urbana
 
 ```
 .
-├── index.html   # the whole site (HTML + inline CSS)
+├── index.html   # the whole site (HTML + inline CSS + SEO meta)
+├── robots.txt
+├── sitemap.xml
 └── README.md
 ```
 
